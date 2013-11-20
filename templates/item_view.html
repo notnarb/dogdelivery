@@ -1,0 +1,13 @@
+{% extends "home.html" %}
+{% block bodyblock %}
+<h2> Would you like to purchase 1 {{item.space_out}}?</h2>
+
+<form class='form-inline'>
+  <div class="input-group">
+    <input type='submit' class="btn btn-success btn-lg" value="Yes">
+    <a href="{{urlPrefix}}{{stadium.name}}/{{vendor.name}}/">
+      <button type='button' class="btn btn-lg btn-danger navbar-btn">No</button>
+    </a>
+  </div>
+</form>
+{% endblock %}

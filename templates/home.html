@@ -1,0 +1,68 @@
+{% block primary %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <link href="{{STATIC_URL}}css/bootstrap.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="navbar navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{urlPrefix}}">Dog Delivery</a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+	    {% if stadium %}
+            <li {% if not vendor %}class="active"{%endif%}><a href="{{urlPrefix}}{{stadium.name}}/">{{stadium.space_out}}</a></li>
+	    {% endif %}
+	    {% if vendor %}
+            <li {% if not item %}class="active"{%endif%}><a href="{{urlPrefix}}{{stadium.name}}/{{vendor.name}}/">{{vendor.space_out}}</a></li>
+	    {% endif %}
+	    {% if item %}
+            <li class="active"><a href="{{urlPrefix}}{{stadium.name}}/{{vendor.name}}/{{item.name}}">{{item.space_out}}</a></li>
+	    {% endif %}
+          </ul>
+	  <div class="nav pull-right">
+	    <a class="btn btn-default navbar-btn" href="{{urlPrefix}}login/">Login</a>
+	  </div>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class='container'>
+      {% if error %}
+      <div class="panel panel-danger">
+	<div class="panel-heading">
+	  Error
+	</div>
+	<div class="panel-body">
+	  {% for msg in error %}
+	  {{msg}}
+	  {% endfor %}
+	</div>
+      </div>
+      {% endif %}
+
+  {% block bodyblock %}
+
+  <h1>Please Select A Stadium</h1>
+  {% for stadium in stadiums %}
+      <h2><a href="{{urlPrefix}}{{stadium.name}}/">{{stadium.space_out}}</a></h2>
+  {% endfor %}
+  {% endblock %}
+</div> {# end encompassing container block #}  
+
+  </body>
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="{{STATIC_URL}}/js/bootstrap.min.js"></script>
+</html>
+{% endblock %}
