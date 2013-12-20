@@ -1,10 +1,11 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from dogdelivery.settings import URL_PREFIX
+#from dogdelivery.settings import URL_PREFIX
+from django.conf import settings
 admin.autodiscover()
 
-prefix = URL_PREFIX[1:]
+prefix = settings.URL_PREFIX[1:]
 
 urlpatterns = patterns('',
     # Examples:

@@ -8,7 +8,7 @@ import hashlib
 
 from django.core.cache import cache
 
-from dogdelivery.settings import URL_PREFIX
+from django.conf import settings
 
 # How long items should stay in the cache
 CACHE_TIMEOUT = 60
@@ -19,7 +19,7 @@ CACHE_TIMEOUT = 60
 def initContext(request):
     ''' Initialize the context object'''
     context = {}
-    context['urlPrefix'] = URL_PREFIX
+    context['urlPrefix'] = settings.URL_PREFIX
     if 'iv' in request.GET:
         context['invalid'] = request.GET['iv']
     context['error'] = []
