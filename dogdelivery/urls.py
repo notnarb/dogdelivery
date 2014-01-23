@@ -6,6 +6,9 @@ from django.conf import settings
 admin.autodiscover()
 
 prefix = settings.URL_PREFIX[1:]
+# Note: root directories don't currently work with these regexes
+if prefix == "":
+    prefix="/"
 
 urlpatterns = patterns('',
     # Examples:
