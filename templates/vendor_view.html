@@ -20,19 +20,60 @@
 <h2>Please Select An Item</h2>
 
 {% for item in itemList %}
-<div class="col-xs-6 col-md-2" style="background-color:#FAFAFA;border:1px dotted;height:300px;overflow:hidden">
+<div class="col-xs-12 col-md-2 item-container">
   <a href="{{urlPrefix}}{{stadium.name}}/{{vendor.name}}/{{item.name}}">
-    <div style="height:50%;overflow:hidden">
+    <div class="item-container-top">
     {% if item.profile_image %} 
-    <img class="img-responsive" style="height=auto" src="{{item.profile_image}}">
+    <img class="img-responsive item-image" src="{{item.profile_image}}">
     {% else %}
-    <img class="img-responsive" src="{{STATIC_URL}}user/placeholder.jpg">
+    <img class="img-responsive item-image" src="{{STATIC_URL}}user/placeholder.jpg">
     {% endif %}
+
+    <div class="item-container-link">{{item.space_out}}  <i>${{item.price}}</i></div>
     </div>
-    <p style="text-align:center">{{item.space_out}}  <i>${{item.price}}</i></p>
   </a>
-  <p style="text-align:center">{{item.description}}</p>
+  <div class="item-container-description">{{item.description}}</div>
+  <div class="item-container-bottom">
+    <!-- <input placeholder="1" style="width:50%"></input> -->
+    <button class="btn btn-default" style="display:inline" onclick="increment({{forloop.counter}})">+</button>
+    <input type="text" style="display:inline" class="form-control quantity-selector" data-name="{{item.name}}" value="{{item.quantity|default:0}}" id="item-quantity-{{forloop.counter}}"/>
+
+    <button class="btn btn-default" style="display:inline" onclick="decrement({{forloop.counter}})">-</button>
+  </div>
 </div>
 {% endfor %}
 </div>
+<!-- Note to self: If I can't see this... -->
+<script type="text/javascript">
+  // Lol, inline javascript
+  function update_id (selectbox) {
+  var item_name = selectbox.data('name');
+  $.ajax(
+  {'type':'POST',
+  'url' : item_name.concat('/'),
+  'data': {
+  'quantity' : parseInt(selectbox.val()),
+  'csrfmiddlewaretoken': '{{csrf_token}}'
+  }}).done(
+  function (response) {
+  if (response.error)
+  alert(response.error);
+  });
+
+  }; // End function update_id
+
+  function increment (input_id) {
+  var selectbox = $("#item-quantity-".concat(input_id));
+  selectbox.val(+selectbox.val() + 1);
+  update_id(selectbox)
+  }; // End function increment
+
+  function decrement (input_id) {
+  var selectbox = $("#item-quantity-".concat(input_id));
+  if (selectbox.val() > 0)
+  selectbox.val(+selectbox.val() - 1);
+  update_id(selectbox)
+  }; // End function decrement
+</script>
+<!-- from here, move javascript to separate file -->
 {% endblock %}

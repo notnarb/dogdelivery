@@ -4,13 +4,13 @@
 <h2>Please Select A Vendor</h2>
 
 {% for vendor in vendorList %}
-<div class="col-md-3" style="background-color:#FAFAFA;border:1px dotted;height:400px">
+<div class="col-md-3 vendor-container">
   <a href="{{urlPrefix}}{{stadium.name}}/{{vendor.name}}/">
-    <div style="height:60%;overflow:hidden">
+    <div class="vendor-container-top">
     {% if vendor.profile_image %} 
-    <img class="img-responsive" style="height=auto" src="{{vendor.profile_image}}">
+    <img class="img-responsive item-image" src="{{vendor.profile_image}}">
     {% else %}
-    <img class="img-responsive" src="{{STATIC_URL}}user/placeholder.jpg">
+    <img class="img-responsive item-image" src="{{STATIC_URL}}user/placeholder.jpg">
     {% endif %}
     </div>
     <h2>{{vendor.space_out}}</h2>

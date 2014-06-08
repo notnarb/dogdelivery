@@ -6,6 +6,9 @@ from main.models import *
 
 import hashlib
 
+import json # For javascript responses
+from collections import defaultdict # nested dictionaries
+
 from django.core.cache import cache
 
 from django.conf import settings
@@ -69,7 +72,7 @@ def StadiumView(request, stadiumName=None):
             foundStadium = Stadiums.objects.get(name=stadiumName)
             cache.set(cache_stadium_key, foundStadium, CACHE_TIMEOUT)
     except Stadiums.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + "?iv=%s" % stadiumName)
+        return HttpResponseRedirect(settings.URL_PREFIX + "?iv=%s" % stadiumName)
     
     context['stadium'] = foundStadium
     # Get a list of vendors for this stadium
@@ -108,9 +111,9 @@ def VendorView(request, stadiumName=None, vendorName=None):
             foundVendor = Vendors.objects.get(stadium=foundStadium.id, name=vendorName)
             cache.set(cache_vendor_key,foundVendor,CACHE_TIMEOUT) 
     except Stadiums.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + "?iv=%s" % stadiumName)
+        return HttpResponseRedirect(settings.URL_PREFIX + "?iv=%s" % stadiumName)
     except Vendors.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + stadiumName + '/' + "?iv=%s" % vendorName)
+        return HttpResponseRedirect(settings.URL_PREFIX + stadiumName + '/' + "?iv=%s" % vendorName)
 
     if itemList is None:
         print "miss items"
@@ -120,7 +123,22 @@ def VendorView(request, stadiumName=None, vendorName=None):
     context['vendor'] = foundVendor
     context['stadium'] = foundStadium
 
+    # Send shopping cart info if it exists
+    if 'cart' in request.session:
+        context['cart'] = request.session['cart']
+        # If there is cart info for this current page (used to grab quantities
+        if foundStadium.name in context['cart'] and foundVendor.name in context['cart'][foundStadium.name]:
+            context['current_cart'] = context['cart'][foundStadium.name][foundVendor.name]
+
+            for item in itemList:
+                if item.name in context['current_cart']:
+                    item.quantity = context['current_cart'][item.name]
+        
+        
     return render_to_response('vendor_view.html',context,context_instance=RequestContext(request))
+
+def double_dict():
+    return defaultdict(dict)
 
 def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
     context = initContext(request)
@@ -148,13 +166,68 @@ def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
             foundItem = Vendor_items.objects.get(vendor=foundVendor.id, name=itemName)
             cache.set(cache_item_key, foundItem, CACHE_TIMEOUT)
     except Stadiums.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + "?iv=%s" % stadiumName)
+        return HttpResponseRedirect(settings.URL_PREFIX + "?iv=%s" % stadiumName)
     except Vendors.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + stadiumName + '/' + "?iv=%s" % vendorName)
+        return HttpResponseRedirect(settings.URL_PREFIX + stadiumName + '/' + "?iv=%s" % vendorName)
     except Vendor_items.DoesNotExist:
-        return HttpResponseRedirect(URL_PREFIX + stadiumName + '/' + vendorName + '/' + "?iv=%s" % itemName)
+        return HttpResponseRedirect(settings.URL_PREFIX + stadiumName + '/' + vendorName + '/' + "?iv=%s" % itemName)
     
     context['vendor'] = foundVendor
     context['stadium'] = foundStadium
     context['item'] = foundItem
+
+    # Current assumes a javascript request @@TODO: Check header to see if it's requesting json
+    if request.method == 'POST':
+        if request.POST['quantity']:
+            if request.POST['quantity'].isdigit():
+                # Either retrieve the cart or initialize a 3d dictionary
+                cart = request.session.get('cart',defaultdict(double_dict))
+                if foundStadium.name not in cart:
+                    cart[foundStadium.name] = defaultdict(dict)
+                if foundVendor.name not in cart[foundStadium.name]:
+                    cart[foundStadium.name][foundVendor.name] = {}
+                # Verify that it's a positive number, delete otherwise
+                if int(request.POST['quantity']) <= 0:
+                    cart[foundStadium.name][foundVendor.name].pop(foundItem.name, None)
+                    # remove vendor if no more items exist
+                    if len(cart[foundStadium.name][foundVendor.name]) <= 0:
+                        cart[foundStadium.name].pop(foundVendor.name, None)
+                        # remove stadium if no more vendors exist
+                        if len(cart[foundStadium.name]) <= 0:
+                            cart.pop(foundStadium.name, None)
+                else:           # end if (quantity <= 0)
+                    cart[foundStadium.name][foundVendor.name][foundItem.name] = int(request.POST['quantity'])
+
+                
+                request.session['cart'] = cart
+                return HttpResponse(json.dumps(request.session['cart']), content_type="application/json")
+            # end if (quantity is digit)
+            return HttpResponse(json.dumps({'error':'invalid quantity: "' + request.POST['quantity'] + '"'}), content_type="application/json")
+        # end if (quantity)
+        return HttpResponse(json.dumps({'error':'no quantity specified'}), content_type="application/json")
+    # end if (post)
+
+    # Send shopping cart info if it exists
+    if 'cart' in request.session:
+        context['cart'] = request.session['cart']
+
     return render_to_response('item_view.html',context,context_instance=RequestContext(request))
+
+
+def cart(request):
+    '''
+    Loads the shopping cart page
+    '''
+    context = initContext(request)
+    if request.session.get('cart', False):
+        context['cart'] = request.session.get('cart')
+    else:
+        context['cart'] = [];
+        vendor = {
+            'name': 'Branton',
+            'items': ['a butt', 'yer mom']
+        }
+        context['cart'].append(vendor)
+    return render_to_response('cart.html',context,context_instance=RequestContext(request))
+
+        

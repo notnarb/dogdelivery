@@ -16,11 +16,13 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
                        
 #    url(r'^admin/', include(admin.site.urls)),
+    url(r'%s\cart/' % prefix, 'main.views.cart'),
     url(r'%s(?P<stadiumName>\w+)/(?P<vendorName>\w+)/(?P<itemName>\w+)/' % prefix, 'main.views.ItemView'),
     url(r'%s(?P<stadiumName>\w+)/(?P<vendorName>\w+)/(?P<itemName>\w+)' % prefix, 'main.views.ItemView'),
     url(r'%s(?P<stadiumName>\w+)/(?P<vendorName>\w+)/' % prefix, 'main.views.VendorView'),
     url(r'%s(?P<stadiumName>\w+)/(?P<vendorName>\w+)' % prefix, 'main.views.VendorView'),
     url(r'%s(?P<stadiumName>\w+)/' % prefix, 'main.views.StadiumView'),
     url(r'%s(?P<stadiumName>\w+)' % prefix, 'main.views.StadiumView'),
+
     url(r'%s*' % prefix, 'main.views.home'),
 )
