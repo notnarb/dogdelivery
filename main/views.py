@@ -213,8 +213,21 @@ def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
 
     return render_to_response('item_view.html',context,context_instance=RequestContext(request))
 
+'''
+Determines whether or not to treat the specified request as a json request or not
+returns true if yes, no otherwise
+'''
+def acceptJson(request):
+    accept_header = request.META.get('HTTP_ACCEPT',False)
+    if not accept_header:
+        return False
+    accept_types = accept_header.split(',')
+    if accept_types[0] == "application/json":
+        return True
+    return False
 
-def cart(request):
+
+def cart(request, stadiumName=None, vendorName=None):
     '''
     Loads the shopping cart page
     '''
@@ -225,9 +238,17 @@ def cart(request):
         context['cart'] = [];
         vendor = {
             'name': 'Branton',
-            'items': ['a butt', 'yer mom']
         }
         context['cart'].append(vendor)
+    if stadiumName in context['cart']:
+        context['cart'] = {stadiumName: context['cart'][stadiumName]}
+        if vendorName in context['cart'][stadiumName]:
+            context['cart'][stadiumName] = {vendorName:context['cart'][stadiumName][vendorName]}
+
+    if (acceptJson(request)):
+        return HttpResponse(json.dumps(context['cart']), content_type="application/json")
+    # else:
+    #     return HttpResponse(json.dumps(request.META['HTTP_ACCEPT']), content_type="application/json")
     return render_to_response('cart.html',context,context_instance=RequestContext(request))
 
         

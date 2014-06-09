@@ -1,5 +1,10 @@
 {% extends "home.html" %}
 
+{% block custom_variables %}
+pageVariables.currentPage = "vendor"
+{% endblock %}
+
+
 {% block bodyblock %}
 <div class="col-md-8 container">
   <div class="col-md-3">
@@ -13,6 +18,8 @@
     <h2>{{vendor.space_out}}</h2>
     {% if vendor.description %}
     <p>{{vendor.description}}</p>
+    {% else %}
+    <p>No description available</p>
     {% endif %}
   </div>
 </div>
@@ -29,16 +36,26 @@
     <img class="img-responsive item-image" src="{{STATIC_URL}}user/placeholder.jpg">
     {% endif %}
 
-    <div class="item-container-link">{{item.space_out}}  <i>${{item.price}}</i></div>
+    <div class="item-container-link">{{item.space_out}}<br><i>${{item.price}}</i></div>
     </div>
   </a>
-  <div class="item-container-description">{{item.description}}</div>
   <div class="item-container-bottom">
-    <!-- <input placeholder="1" style="width:50%"></input> -->
-    <button class="btn btn-default" style="display:inline" onclick="increment({{forloop.counter}})">+</button>
-    <input type="text" style="display:inline" class="form-control quantity-selector" data-name="{{item.name}}" value="{{item.quantity|default:0}}" id="item-quantity-{{forloop.counter}}"/>
-
-    <button class="btn btn-default" style="display:inline" onclick="decrement({{forloop.counter}})">-</button>
+    <div class="item-container-description">
+      {% if item.description %}
+      {{item.description}}
+      {% else %}
+      No description available
+      {% endif %}
+    </div>
+    <div class="input-group item-container-quantity" data-item="{{item.name}}">
+      <div class="input-group-btn">
+	<button class="btn btn-default item-incrementer" data-item="{{item.name}}" style="display:inline" onclick="increment({{forloop.counter}})">+</button>
+      </div>
+      <input type="text" style="display:inline" class="form-control quantity-selector" data-name="{{item.name}}" value="{{item.quantity|default:0}}" id="item-quantity-{{forloop.counter}}"/>
+      <div class="input-group-btn">
+	<button class="btn btn-default item-decrementer" style="display:inline" onclick="decrement({{forloop.counter}})">-</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endfor %}

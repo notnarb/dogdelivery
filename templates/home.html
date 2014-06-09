@@ -34,6 +34,10 @@
           </ul>
 	  <div class="nav pull-right">
 	    <!-- <a class="btn btn-default navbar-btn" href="{{urlPrefix}}login/">Login</a> -->
+	    <div class="btn btn-default" style="background-color: white" id="cart-button">
+	      Cart (<span id="cart-button-number">{{current_cart|length}}</span>)
+	      <div class="glyphicon glyphicon-shopping-cart"></div>
+	    </div>
 	    <a class="btn btn-default navbar-btn" onclick="alert('Nope')">Login</a>
 	  </div>
         </div><!--/.nav-collapse -->
@@ -64,7 +68,18 @@
 </div> {# end encompassing container block #}  
 
   </body>
+  <script>
+    var pageVariables = {
+	"urlPrefix"	: "{{urlPrefix}}",
+	"stadium"	: "{{stadium.name}}",
+	"vendor"	: "{{vendor.name}}",
+	"item"		: "{{item.name}}"
+    };
+    {% block custom_variables %}{% endblock %}
+  </script>
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="{{STATIC_URL}}/js/bootstrap.min.js"></script>
+  <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+  <script src="{{STATIC_URL}}js/dogdelivery.js"></script>
+
 </html>
 {% endblock %}
