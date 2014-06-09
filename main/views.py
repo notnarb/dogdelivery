@@ -13,6 +13,8 @@ from django.core.cache import cache
 
 from django.conf import settings
 
+import time # Used for artifical delays, delete later @@@
+
 # How long items should stay in the cache
 CACHE_TIMEOUT = 60
 
@@ -166,10 +168,16 @@ def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
             foundItem = Vendor_items.objects.get(vendor=foundVendor.id, name=itemName)
             cache.set(cache_item_key, foundItem, CACHE_TIMEOUT)
     except Stadiums.DoesNotExist:
+        if (acceptJson(request)):
+            return HttpResponse(json.dumps({'error':"Invalid Stadium: " + stadiumName}), content_type="application/javascript")
         return HttpResponseRedirect(settings.URL_PREFIX + "?iv=%s" % stadiumName)
     except Vendors.DoesNotExist:
+        if (acceptJson(request)):
+            return HttpResponse(json.dumps({'error':"Invalid Vendor: " + vendorName}), content_type="application/javascript")
         return HttpResponseRedirect(settings.URL_PREFIX + stadiumName + '/' + "?iv=%s" % vendorName)
     except Vendor_items.DoesNotExist:
+        if (acceptJson(request)):
+            return HttpResponse(json.dumps({'error':"Invalid Item: " + itemName}), content_type="application/javascript")
         return HttpResponseRedirect(settings.URL_PREFIX + stadiumName + '/' + vendorName + '/' + "?iv=%s" % itemName)
     
     context['vendor'] = foundVendor
@@ -177,7 +185,7 @@ def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
     context['item'] = foundItem
 
     # Current assumes a javascript request @@TODO: Check header to see if it's requesting json
-    if request.method == 'POST':
+    if request.method == 'POST' and acceptJson(request):
         if request.POST['quantity']:
             if request.POST['quantity'].isdigit():
                 # Either retrieve the cart or initialize a 3d dictionary
@@ -200,7 +208,7 @@ def ItemView(request, stadiumName=None, vendorName=None, itemName=None):
 
                 
                 request.session['cart'] = cart
-                return HttpResponse(json.dumps(request.session['cart']), content_type="application/json")
+                return HttpResponse(json.dumps({"cart":request.session['cart']}), content_type="application/json")
             # end if (quantity is digit)
             return HttpResponse(json.dumps({'error':'invalid quantity: "' + request.POST['quantity'] + '"'}), content_type="application/json")
         # end if (quantity)
@@ -234,19 +242,27 @@ def cart(request, stadiumName=None, vendorName=None):
     context = initContext(request)
     if request.session.get('cart', False):
         context['cart'] = request.session.get('cart')
-    else:
-        context['cart'] = [];
-        vendor = {
-            'name': 'Branton',
-        }
-        context['cart'].append(vendor)
+    # else:
+    #     context['cart'] = [];
+    #     vendor = {
+    #         'name': 'Branton',
+    #     }
+    #     context['cart'].append(vendor)
+
     if stadiumName in context['cart']:
         context['cart'] = {stadiumName: context['cart'][stadiumName]}
         if vendorName in context['cart'][stadiumName]:
             context['cart'][stadiumName] = {vendorName:context['cart'][stadiumName][vendorName]}
+        # Lookup all items @@@todo: switch to index representations OR implement cacheing here
+        # for stadium, vendors in context['cart'].iteritems():
+        #     foundStadium = Stadiums.objects.get(name=stadium);
+        #     for vendor, items in context['cart'][stadium].iteritems():
+        #         foundVendor = Vendors.objects.get(stadium=foundStadium.id, name=vendor)
+        #         for item, quantity in context[stadium][vendor]:
+        #             foundItem = Items.objects.get(vendor=foundVendor.id, name=item)
 
     if (acceptJson(request)):
-        return HttpResponse(json.dumps(context['cart']), content_type="application/json")
+        return HttpResponse(json.dumps({"cart":context['cart']}), content_type="application/json")
     # else:
     #     return HttpResponse(json.dumps(request.META['HTTP_ACCEPT']), content_type="application/json")
     return render_to_response('cart.html',context,context_instance=RequestContext(request))

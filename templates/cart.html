@@ -1,0 +1,32 @@
+{% extends "home.html" %}
+
+
+{% block bodyblock %}
+
+{% if cart %}
+
+{% for stadium, vendors  in cart.items %}
+
+
+<div><b>{{stadium}}</b></div>
+
+{% for vendor, items in vendors.items %}
+<div class='container col3 vendor-cart-container'>
+  <div class='vendor-cart-header'>
+    {{vendor}}
+  </div>
+
+  {% for item, quantity in items.items %}
+  <div class='item-cart-container'>{{item}}:{{quantity}}</div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% endfor %}
+
+{% else %}
+<div>You don't have a cart!</div>
+
+{% endif %}
+
+
+{% endblock %}

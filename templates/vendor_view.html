@@ -1,7 +1,8 @@
 {% extends "home.html" %}
 
 {% block custom_variables %}
-pageVariables.currentPage = "vendor"
+pageVariables.currentPage = "vendor";
+pageVariables.csrf_token = "{{csrf_token}}";
 {% endblock %}
 
 
@@ -49,14 +50,16 @@ pageVariables.currentPage = "vendor"
     </div>
     <div class="input-group item-container-quantity" data-item="{{item.name}}">
       <div class="input-group-btn">
-	<button class="btn btn-default item-incrementer" data-item="{{item.name}}" style="display:inline" onclick="increment({{forloop.counter}})">+</button>
+	<button class="btn btn-default item-incrementer" data-item="{{item.name}}" style="display:inline">+</button>
       </div>
-      <input type="text" style="display:inline" class="form-control quantity-selector" data-name="{{item.name}}" value="{{item.quantity|default:0}}" id="item-quantity-{{forloop.counter}}"/>
+      <input type="text" class="form-control quantity-selector" data-name="{{item.name}}" value="{{item.quantity|default:0}}" id="item-quantity-{{item.name}}"/>
       <div class="input-group-btn">
-	<button class="btn btn-default item-decrementer" style="display:inline" onclick="decrement({{forloop.counter}})">-</button>
+	<button class="btn btn-default item-decrementer" data-item="{{item.name}}" style="display:inline">-</button>
       </div>
     </div>
   </div>
+
+
 </div>
 {% endfor %}
 </div>

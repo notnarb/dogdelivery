@@ -10,7 +10,7 @@
 
   <body>
     <div class="navbar navbar-inverse" role="navigation">
-      <div class="container">
+      <div class="container" style="position:relative">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
@@ -19,7 +19,16 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="{{urlPrefix}}">Dog Delivery</a>
+	    <div id="cart-button-container" style="display:inline;" class="navbar-header pull-right">
+	      <div class="nav pull-left">
+	      <div class="btn btn-default navbar-btn" style="background-color: white" id="cart-button">
+		Cart (<span id="cart-button-number">{{current_cart|length}}</span>)
+		<div class="glyphicon glyphicon-shopping-cart"></div> 
+	      </div> <!-- end div(cart-button) -->
+	      </div>
+	    </div>   <!-- end div(cart-button-container -->
         </div>
+
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
 	    {% if stadium %}
@@ -34,13 +43,11 @@
           </ul>
 	  <div class="nav pull-right">
 	    <!-- <a class="btn btn-default navbar-btn" href="{{urlPrefix}}login/">Login</a> -->
-	    <div class="btn btn-default" style="background-color: white" id="cart-button">
-	      Cart (<span id="cart-button-number">{{current_cart|length}}</span>)
-	      <div class="glyphicon glyphicon-shopping-cart"></div>
-	    </div>
+
 	    <a class="btn btn-default navbar-btn" onclick="alert('Nope')">Login</a>
 	  </div>
         </div><!--/.nav-collapse -->
+
       </div>
     </div>
 
@@ -80,6 +87,8 @@
   <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
   <script src="{{STATIC_URL}}js/dogdelivery.js"></script>
+  <script src="{{STATIC_URL}}js/spin.min.js"></script>
+  <script src="{{STATIC_URL}}js/jquery.spin.js"></script>
 
 </html>
 {% endblock %}
